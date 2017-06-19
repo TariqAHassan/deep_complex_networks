@@ -14,11 +14,10 @@ import mimir
 import keras
 
 import musicnet.models.complex
-from musicnet.callbacks import (
+from musicnet.musicnet.callbacks import (
     SaveLastModel, Performance, Validation, LearningRateScheduler)
-from musicnet.dataset import MusicNet
-from musicnet import models
-
+from musicnet.musicnet.dataset import MusicNet
+from musicnet.musicnet import models
 
 # input dimensions
 d = 16384 / 4
@@ -115,7 +114,7 @@ def main(model_name, in_memory, complex_, model, local_data, epochs, fourier,
 
     callbacks = [Validation(Xvalid, Yvalid, 'valid', logger),
                  Validation(Xtest, Ytest, 'test', logger),
-                 SaveLastModel("./models/", 1, name=model), 
+                 SaveLastModel("./models/", 1, name=model),
                  Performance(logger),
                  LearningRateScheduler(schedule)]
 
@@ -137,6 +136,6 @@ if __name__ == "__main__":
     parser.add_argument('--stft', action='store_true', default=False)
     parser.add_argument('--fast-load', action='store_true', default=False)
     parser.add_argument(
-        '--local-data', 
+        '--local-data',
         default="/Tmp/serdyuk/data/musicnet_11khz.npz")
     main(**parser.parse_args().__dict__)

@@ -22,7 +22,6 @@ def sqrt_init(shape, dtype=None):
 
 def complex_standardization(input_centred, Vrr, Vii, Vri,
                             layernorm=False, axis=-1):
-    
     ndim = K.ndim(input_centred)
     input_dim = K.shape(input_centred)[axis] // 2
     variances_broadcast = [1] * ndim
@@ -40,7 +39,7 @@ def complex_standardization(input_centred, Vrr, Vii, Vri,
     # delta = (Vrr * Vii) - (Vri ** 2) = Determinant. Guaranteed >= 0 because SPD
     delta = (Vrr * Vii) - (Vri ** 2)
 
-    s = np.sqrt(delta) # Determinant of square root matrix
+    s = np.sqrt(delta)  # Determinant of square root matrix
     t = np.sqrt(tau + 2 * s)
 
     # The square root matrix could now be explicitly formed as
@@ -109,9 +108,8 @@ def complex_standardization(input_centred, Vrr, Vii, Vri,
 
 
 def ComplexBN(input_centred, Vrr, Vii, Vri, beta,
-               gamma_rr, gamma_ri, gamma_ii, scale=True,
-               center=True, layernorm=False, axis=-1):
-
+              gamma_rr, gamma_ri, gamma_ii, scale=True,
+              center=True, layernorm=False, axis=-1):
     ndim = K.ndim(input_centred)
     input_dim = K.shape(input_centred)[axis] // 2
     if scale:
@@ -137,7 +135,7 @@ def ComplexBN(input_centred, Vrr, Vii, Vri, beta,
         # where:
         # x_real_BN = gamma_rr * x_real_normed + gamma_ri * x_imag_normed + beta_real
         # x_imag_BN = gamma_ri * x_real_normed + gamma_ii * x_imag_normed + beta_imag
-        
+
         broadcast_gamma_rr = K.reshape(gamma_rr, gamma_broadcast_shape)
         broadcast_gamma_ri = K.reshape(gamma_ri, gamma_broadcast_shape)
         broadcast_gamma_ii = K.reshape(gamma_ii, gamma_broadcast_shape)
@@ -272,8 +270,8 @@ class ComplexBatchNormalization(Layer):
         dim = input_shape[self.axis]
         if dim is None:
             raise ValueError('Axis ' + str(self.axis) + ' of '
-                             'input tensor should have a defined dimension '
-                             'but the layer received an input with shape ' +
+                                                        'input tensor should have a defined dimension '
+                                                        'but the layer received an input with shape ' +
                              str(input_shape) + '.')
         self.input_spec = InputSpec(ndim=len(input_shape),
                                     axes={self.axis: dim})
@@ -435,10 +433,12 @@ class ComplexBatchNormalization(Layer):
             'center': self.center,
             'scale': self.scale,
             'beta_initializer': initializers.serialize(self.beta_initializer),
-            'gamma_diag_initializer': initializers.serialize(self.gamma_diag_initializer) if self.gamma_diag_initializer != sqrt_init else 'sqrt_init',
+            'gamma_diag_initializer': initializers.serialize(
+                self.gamma_diag_initializer) if self.gamma_diag_initializer != sqrt_init else 'sqrt_init',
             'gamma_off_initializer': initializers.serialize(self.gamma_off_initializer),
             'moving_mean_initializer': initializers.serialize(self.moving_mean_initializer),
-            'moving_variance_initializer': initializers.serialize(self.moving_variance_initializer) if self.moving_variance_initializer != sqrt_init else 'sqrt_init',
+            'moving_variance_initializer': initializers.serialize(
+                self.moving_variance_initializer) if self.moving_variance_initializer != sqrt_init else 'sqrt_init',
             'moving_covariance_initializer': initializers.serialize(self.moving_covariance_initializer),
             'beta_regularizer': regularizers.serialize(self.beta_regularizer),
             'gamma_diag_regularizer': regularizers.serialize(self.gamma_diag_regularizer),
@@ -449,4 +449,3 @@ class ComplexBatchNormalization(Layer):
         }
         base_config = super(ComplexBatchNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-

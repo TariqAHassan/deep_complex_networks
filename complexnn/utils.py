@@ -7,6 +7,7 @@
 import keras.backend as K
 from keras.layers import Lambda
 
+
 #
 # GetReal/GetImag Lambda layer Implementation
 #
@@ -68,6 +69,7 @@ def getpart_output_shape(input_shape):
     returned_shape[axis] = returned_shape[axis] // 2
 
     return tuple(returned_shape)
+
 
 GetReal = Lambda(get_realpart, output_shape=getpart_output_shape)
 GetImag = Lambda(get_imagpart, output_shape=getpart_output_shape)

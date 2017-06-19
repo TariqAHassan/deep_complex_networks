@@ -6,7 +6,8 @@
 
 from keras import backend as K
 from keras import activations, initializers, regularizers, constraints
-from keras.layers import Lambda, Layer, InputSpec, Convolution1D, Convolution2D, add, multiply, Activation, Input, concatenate
+from keras.layers import Lambda, Layer, InputSpec, Convolution1D, Convolution2D, add, multiply, Activation, Input, \
+    concatenate
 from keras.layers.convolutional import _Conv
 from keras.layers.merge import _Merge
 from keras.layers.recurrent import Recurrent
@@ -164,7 +165,7 @@ class ComplexConv(Layer):
             raise ValueError('The channel dimension of the inputs '
                              'should be defined. Found `None`.')
         input_dim = input_shape[channel_axis] // 2
-        self.kernel_shape = self.kernel_size + (input_dim , self.filters)
+        self.kernel_shape = self.kernel_size + (input_dim, self.filters)
         # The kernel shape here is a complex kernel shape:
         #   nb of complex feature maps = input_dim;
         #   nb of output complex feature maps = self.filters;
@@ -172,7 +173,7 @@ class ComplexConv(Layer):
         #                         = self.kernel_size 
         #                         = complex kernel size
         if self.kernel_initializer in {'complex', 'complex_independent'}:
-            kls = {'complex':             ComplexInit,
+            kls = {'complex': ComplexInit,
                    'complex_independent': ComplexIndependentFilters}[self.kernel_initializer]
             kern_init = kls(
                 kernel_size=self.kernel_size,
@@ -183,7 +184,7 @@ class ComplexConv(Layer):
             )
         else:
             kern_init = self.kernel_initializer
-        
+
         self.kernel = self.add_weight(
             self.kernel_shape,
             initializer=kern_init,
@@ -240,20 +241,20 @@ class ComplexConv(Layer):
 
     def call(self, inputs):
         channel_axis = 1 if self.data_format == 'channels_first' else -1
-        input_dim    = K.shape(inputs)[channel_axis] // 2
+        input_dim = K.shape(inputs)[channel_axis] // 2
         if self.rank == 1:
-            f_real   = self.kernel[:, :, :self.filters]
-            f_imag   = self.kernel[:, :, self.filters:]
+            f_real = self.kernel[:, :, :self.filters]
+            f_imag = self.kernel[:, :, self.filters:]
         elif self.rank == 2:
-            f_real   = self.kernel[:, :, :, :self.filters]
-            f_imag   = self.kernel[:, :, :, self.filters:]
+            f_real = self.kernel[:, :, :, :self.filters]
+            f_imag = self.kernel[:, :, :, self.filters:]
         elif self.rank == 3:
-            f_real   = self.kernel[:, :, :, :, :self.filters]
-            f_imag   = self.kernel[:, :, :, :, self.filters:]
+            f_real = self.kernel[:, :, :, :, :self.filters]
+            f_imag = self.kernel[:, :, :, :, self.filters:]
 
-        convArgs = {"strides":       self.strides[0]       if self.rank == 1 else self.strides,
-                    "padding":       self.padding,
-                    "data_format":   self.data_format,
+        convArgs = {"strides": self.strides[0] if self.rank == 1 else self.strides,
+                    "padding": self.padding,
+                    "data_format": self.data_format,
                     "dilation_rate": self.dilation_rate[0] if self.rank == 1 else self.dilation_rate}
         convFunc = {1: K.conv1d,
                     2: K.conv2d,
@@ -262,30 +263,30 @@ class ComplexConv(Layer):
         # processing if the weights are assumed to be represented in the spectral domain
 
         if self.spectral_parametrization:
-            if   self.rank == 1:
-                f_real = K.permute_dimensions(f_real, (2,1,0))
-                f_imag = K.permute_dimensions(f_imag, (2,1,0))
-                f      = K.concatenate([f_real, f_imag], axis=0)
+            if self.rank == 1:
+                f_real = K.permute_dimensions(f_real, (2, 1, 0))
+                f_imag = K.permute_dimensions(f_imag, (2, 1, 0))
+                f = K.concatenate([f_real, f_imag], axis=0)
                 fshape = K.shape(f)
-                f      = K.reshape(f, (fshape[0] * fshape[1], fshape[2]))
-                f      = ifft(f)
-                f      = K.reshape(f, fshape)
-                f_real = f[:fshape[0]//2]
-                f_imag = f[fshape[0]//2:]
-                f_real = K.permute_dimensions(f_real, (2,1,0))
-                f_imag = K.permute_dimensions(f_imag, (2,1,0))
+                f = K.reshape(f, (fshape[0] * fshape[1], fshape[2]))
+                f = ifft(f)
+                f = K.reshape(f, fshape)
+                f_real = f[:fshape[0] // 2]
+                f_imag = f[fshape[0] // 2:]
+                f_real = K.permute_dimensions(f_real, (2, 1, 0))
+                f_imag = K.permute_dimensions(f_imag, (2, 1, 0))
             elif self.rank == 2:
-                f_real = K.permute_dimensions(f_real, (3,2,0,1))
-                f_imag = K.permute_dimensions(f_imag, (3,2,0,1))
-                f      = K.concatenate([f_real, f_imag], axis=0)
+                f_real = K.permute_dimensions(f_real, (3, 2, 0, 1))
+                f_imag = K.permute_dimensions(f_imag, (3, 2, 0, 1))
+                f = K.concatenate([f_real, f_imag], axis=0)
                 fshape = K.shape(f)
-                f      = K.reshape(f, (fshape[0] * fshape[1], fshape[2], fshape[3]))
-                f      = ifft2(f)
-                f      = K.reshape(f, fshape)
-                f_real = f[:fshape[0]//2]
-                f_imag = f[fshape[0]//2:]
-                f_real = K.permute_dimensions(f_real, (2,3,1,0))
-                f_imag = K.permute_dimensions(f_imag, (2,3,1,0))
+                f = K.reshape(f, (fshape[0] * fshape[1], fshape[2], fshape[3]))
+                f = ifft2(f)
+                f = K.reshape(f, fshape)
+                f_real = f[:fshape[0] // 2]
+                f_imag = f[fshape[0] // 2:]
+                f_real = K.permute_dimensions(f_real, (2, 3, 1, 0))
+                f_imag = K.permute_dimensions(f_imag, (2, 3, 1, 0))
 
         # In case of weight normalization, real and imaginary weights are normalized
 
@@ -310,14 +311,14 @@ class ComplexConv(Layer):
             Vii = K.mean(reshaped_f_imag_centred ** 2, axis=reduction_axes) + self.epsilon
             Vri = K.mean(reshaped_f_real_centred * reshaped_f_imag_centred,
                          axis=reduction_axes) + self.epsilon
-            
+
             normalized_weight = complex_normalization(
                 K.concatenate([reshaped_f_real, reshaped_f_imag], axis=-1),
                 Vrr, Vii, Vri,
-                beta = None,
-                gamma_rr = self.gamma_rr,
-                gamma_ri = self.gamma_ri,
-                gamma_ii = self.gamma_ii,
+                beta=None,
+                gamma_rr=self.gamma_rr,
+                gamma_ri=self.gamma_ri,
+                gamma_ii=self.gamma_ii,
                 scale=True,
                 center=False,
                 axis=-1
@@ -334,7 +335,7 @@ class ComplexConv(Layer):
         f_imag._keras_shape = self.kernel_shape
 
         cat_kernels_4_real = K.concatenate([f_real, -f_imag], axis=-2)
-        cat_kernels_4_imag = K.concatenate([f_imag,  f_real], axis=-2)
+        cat_kernels_4_imag = K.concatenate([f_imag, f_real], axis=-2)
         cat_kernels_4_complex = K.concatenate([cat_kernels_4_real, cat_kernels_4_imag], axis=-1)
         cat_kernels_4_complex._keras_shape = self.kernel_size + (2 * input_dim, 2 * self.filters)
 
@@ -805,12 +806,12 @@ class ComplexConv3D(ComplexConv):
 
 
 class WeightNorm_Conv(_Conv):
-	# Real-valued Convolutional Layer that normalizes its weights
-	# before convolving the input.
-	# The weight Normalization performed the one
-	# described in the following paper:
-	# Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks
-	# (see https://arxiv.org/abs/1602.07868)
+    # Real-valued Convolutional Layer that normalizes its weights
+    # before convolving the input.
+    # The weight Normalization performed the one
+    # described in the following paper:
+    # Weight Normalization: A Simple Reparameterization to Accelerate Training of Deep Neural Networks
+    # (see https://arxiv.org/abs/1602.07868)
 
     def __init__(self,
                  gamma_initializer='ones',
@@ -863,10 +864,10 @@ class WeightNorm_Conv(_Conv):
         normalized_weight = K.reshape(self.gamma, (1, ker_shape[-2] * ker_shape[-1])) * normalized_weight
         shaped_kernel = K.reshape(normalized_weight, ker_shape)
         shaped_kernel._keras_shape = ker_shape
-        
-        convArgs = {"strides":       self.strides[0]       if self.rank == 1 else self.strides,
-                    "padding":       self.padding,
-                    "data_format":   self.data_format,
+
+        convArgs = {"strides": self.strides[0] if self.rank == 1 else self.strides,
+                    "padding": self.padding,
+                    "data_format": self.data_format,
                     "dilation_rate": self.dilation_rate[0] if self.rank == 1 else self.dilation_rate}
         convFunc = {1: K.conv1d,
                     2: K.conv2d,
@@ -894,7 +895,6 @@ class WeightNorm_Conv(_Conv):
         }
         base_config = super(WeightNorm_Conv, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
-
 
 
 # Aliases

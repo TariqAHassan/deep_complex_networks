@@ -61,7 +61,7 @@ def get_deep_convnet(window_size=4096, channels=1, output_size=84):
     model.add(keras.layers.normalization.BatchNormalization(axis=-1))
     model.add(keras.layers.Activation('relu'))
     model.add(keras.layers.MaxPooling1D(pool_size=2, strides=2))
-    
+
     model.add(keras.layers.Conv1D(
         128, 3, strides=1,
         activation='linear',
@@ -99,4 +99,3 @@ def get_deep_convnet(window_size=4096, channels=1, output_size=84):
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model
-

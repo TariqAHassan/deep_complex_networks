@@ -72,7 +72,7 @@ class IndependentFilters(Initializer):
         else:
             raise ValueError('Invalid criterion: ' + self.criterion)
 
-        multip_constant = np.sqrt (desired_var / np.var(independent_filters))
+        multip_constant = np.sqrt(desired_var / np.var(independent_filters))
         scaled_indep = multip_constant * independent_filters
 
         if self.weight_dim == 2 and self.nb_filters is None:

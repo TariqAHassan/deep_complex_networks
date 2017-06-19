@@ -9,8 +9,7 @@ import h5py
 
 from time import time
 from os import path
-from sklearn.metrics import (
-    precision_recall_curve, average_precision_score, log_loss)
+from sklearn.metrics import (precision_recall_curve, average_precision_score, log_loss)
 
 import keras
 from keras.callbacks import Callback, ModelCheckpoint, LearningRateScheduler
@@ -26,9 +25,9 @@ class SaveLastModel(Callback):
             os.mkdir(self.chkptsdir)
 
         self.period_of_epochs = period
-        self.link_filename = path.join(self.chkptsdir, 
+        self.link_filename = path.join(self.chkptsdir,
                                        "model_checkpoint.hdf5")
-    
+
     def on_epoch_end(self, epoch, logs=None):
         if (epoch + 1) % self.period_of_epochs == 0:
             # Filenames
@@ -38,22 +37,22 @@ class SaveLastModel(Callback):
                 self.name, epoch + 1)
             hdf5_filename = path.join(self.chkptsdir, base_hdf5_filename)
             yaml_filename = path.join(self.chkptsdir, base_yaml_filename)
-            
+
             # YAML
             yaml_model = self.model.to_yaml()
             with open(yaml_filename, "w") as yaml_file:
                 yaml_file.write(yaml_model)
-            
+
             # HDF5
             keras.models.save_model(self.model, hdf5_filename)
             with h5py.File(hdf5_filename, "r+") as f:
-                f.require_dataset("initialEpoch", (), "uint64", True)[...] = int(epoch+1)
+                f.require_dataset("initialEpoch", (), "uint64", True)[...] = int(epoch + 1)
                 f.flush()
-            
+
             # Symlink to new HDF5 file, then atomically rename and replace.
             os.symlink(base_hdf5_filename, self.link_filename + ".rename")
-            os.rename (self.link_filename + ".rename",
-                       self.link_filename)
+            os.rename(self.link_filename + ".rename",
+                      self.link_filename)
 
 
 class Performance(Callback):
@@ -65,8 +64,8 @@ class Performance(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         t = np.asarray(self.timestamps, dtype=np.float64)
-        train_function_time = float(np.mean(t[ :,1] - t[:,0]))
-        load_data_time = float(np.mean(t[1:,0] - t[:-1, 1]))
+        train_function_time = float(np.mean(t[:, 1] - t[:, 0]))
+        load_data_time = float(np.mean(t[1:, 0] - t[:-1, 1]))
         self.logger.log(
             {'epoch': epoch, 'train_function_time': train_function_time})
         self.logger.log({'epoch': epoch, 'load_data_time': load_data_time})
@@ -104,4 +103,3 @@ class Validation(Callback):
             {'epoch': epoch + 1,
              self.name + "_avg_precision": average_precision,
              self.name + "_loss": loss})
-

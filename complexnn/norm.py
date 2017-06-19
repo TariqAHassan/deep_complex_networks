@@ -13,7 +13,8 @@ from keras.layers import Layer, InputSpec
 from keras import initializers, regularizers, constraints
 import keras.backend as K
 from .bn import ComplexBN as complex_normalization
-from .bn import sqrt_init 
+from .bn import sqrt_init
+
 
 def layernorm(x, axis, epsilon, gamma, beta):
     # assert self.built, 'Layer must be built before being called'
@@ -30,7 +31,7 @@ def layernorm(x, axis, epsilon, gamma, beta):
     mean = K.mean(x, axis=reduction_axes)
     broadcast_mean = K.reshape(mean, broadcast_shape)
     x_centred = x - broadcast_mean
-    variance  = K.mean(x_centred ** 2, axis=reduction_axes) + epsilon
+    variance = K.mean(x_centred ** 2, axis=reduction_axes) + epsilon
     broadcast_variance = K.reshape(variance, broadcast_shape)
 
     x_normed = x_centred / K.sqrt(broadcast_variance)
@@ -39,15 +40,15 @@ def layernorm(x, axis, epsilon, gamma, beta):
 
     broadcast_shape_params = [1] * K.ndim(x)
     broadcast_shape_params[axis] = K.shape(x)[axis]
-    broadcast_gamma  = K.reshape(gamma, broadcast_shape_params)
-    broadcast_beta  = K.reshape(beta,  broadcast_shape_params)
+    broadcast_gamma = K.reshape(gamma, broadcast_shape_params)
+    broadcast_beta = K.reshape(beta, broadcast_shape_params)
 
     x_LN = broadcast_gamma * x_normed + broadcast_beta
 
     return x_LN
 
+
 class LayerNormalization(Layer):
-    
     def __init__(self,
                  epsilon=1e-4,
                  axis=-1,
@@ -56,7 +57,6 @@ class LayerNormalization(Layer):
                  gamma_regularizer=None,
                  beta_regularizer=None,
                  **kwargs):
-
         self.supports_masking = True
         self.beta_init = initializers.get(beta_init)
         self.gamma_init = initializers.get(gamma_init)
@@ -88,10 +88,10 @@ class LayerNormalization(Layer):
         return layernorm(x, self.axis, self.epsilon, self.gamma, self.beta)
 
     def get_config(self):
-        config = {'epsilon':           self.epsilon,
-                  'axis':              self.axis,
+        config = {'epsilon': self.epsilon,
+                  'axis': self.axis,
                   'gamma_regularizer': self.gamma_regularizer.get_config() if self.gamma_regularizer else None,
-                  'beta_regularizer':  self.beta_regularizer.get_config()  if self.beta_regularizer  else None
+                  'beta_regularizer': self.beta_regularizer.get_config() if self.beta_regularizer  else None
                   }
         base_config = super(LayerNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
@@ -136,8 +136,8 @@ class ComplexLayerNorm(Layer):
         dim = input_shape[self.axis]
         if dim is None:
             raise ValueError('Axis ' + str(self.axis) + ' of '
-                             'input tensor should have a defined dimension '
-                             'but the layer received an input with shape ' +
+                                                        'input tensor should have a defined dimension '
+                                                        'but the layer received an input with shape ' +
                              str(input_shape) + '.')
         self.input_spec = InputSpec(ndim=len(input_shape),
                                     axes={self.axis: dim})

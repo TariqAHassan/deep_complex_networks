@@ -11,12 +11,11 @@ from itertools import chain
 from scipy import fft
 from scipy.signal import stft
 
-
-FS = 44100            # samples/second
-DEFAULT_WINDOW_SIZE = 2048    # fourier window size
-OUTPUT_SIZE = 128               # number of distinct notes
-STRIDE = 512          # samples between windows
-WPS = FS / float(512)   # windows/second
+FS = 44100  # samples/second
+DEFAULT_WINDOW_SIZE = 2048  # fourier window size
+OUTPUT_SIZE = 128  # number of distinct notes
+STRIDE = 512  # samples between windows
+WPS = FS / float(512)  # windows/second
 
 
 class MusicNet(object):
@@ -134,7 +133,7 @@ class MusicNet(object):
                 # segments
                 index = self.sample_freq + j * step
                 features[pos_per_file * i + j] = audio[index:
-                                                       index + self.window_size]
+                index + self.window_size]
 
                 # label stuff that's on in the center of the window
                 s = int((index + self.window_size / 2))
@@ -200,7 +199,7 @@ class MusicNet(object):
                     self.window_size / 2,
                     len(self.train_data[ind][0]) - self.window_size / 2)
                 data = self.train_data[ind][0][s - self.window_size / 2:
-                                               s + self.window_size / 2]
+                s + self.window_size / 2]
                 features[j, :] = data
                 for label in self.train_data[ind][1][s]:
                     note = label.data[1]

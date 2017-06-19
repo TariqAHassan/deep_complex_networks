@@ -32,7 +32,7 @@ def get_shallow_convnet(window_size=4096, channels=2, output_size=84):
 
     dense = ComplexDense(2048, activation='relu')(flattened)
     predictions = ComplexDense(
-        output_size, 
+        output_size,
         activation='sigmoid',
         bias_initializer=Constant(value=-5))(dense)
     predictions = GetReal(predictions)
@@ -63,7 +63,7 @@ def get_deep_convnet(window_size=4096, channels=2, output_size=84):
     outs = (ComplexBN(axis=-1))(outs)
     outs = (keras.layers.Activation('relu'))(outs)
     outs = (keras.layers.AveragePooling1D(pool_size=2, strides=2))(outs)
-    
+
     outs = (ComplexConv1D(
         64, 3, strides=1, padding='same',
         activation='linear',
@@ -92,17 +92,16 @@ def get_deep_convnet(window_size=4096, channels=2, output_size=84):
     outs = (keras.layers.Activation('relu'))(outs)
     outs = (keras.layers.AveragePooling1D(pool_size=2, strides=2))(outs)
 
-    #outs = (keras.layers.MaxPooling1D(pool_size=2))
-    #outs = (Permute([2, 1]))
+    # outs = (keras.layers.MaxPooling1D(pool_size=2))
+    # outs = (Permute([2, 1]))
     outs = (keras.layers.Flatten())(outs)
     outs = (keras.layers.Dense(2048, activation='relu',
-                           kernel_initializer='glorot_normal'))(outs)
+                               kernel_initializer='glorot_normal'))(outs)
     predictions = (keras.layers.Dense(output_size, activation='sigmoid',
-                                 bias_initializer=keras.initializers.Constant(value=-5)))(outs)
+                                      bias_initializer=keras.initializers.Constant(value=-5)))(outs)
 
     model = Model(inputs=inputs, outputs=predictions)
     model.compile(optimizer=keras.optimizers.Adam(lr=1e-4),
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model
-
