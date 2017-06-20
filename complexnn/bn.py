@@ -16,7 +16,7 @@ import keras.backend as K
 
 
 def sqrt_init(shape, dtype=None):
-    value = (1 / K.sqrt(2)) * K.ones(shape)
+    value = (1 / K.sqrt(2)) * K.ones(shape, dtype=dtype)
     return value
 
 
@@ -93,7 +93,7 @@ def complex_standardization(input_centred, Vrr, Vii, Vri,
     else:
         raise ValueError(
             'Incorrect Batchnorm combination of axis and dimensions. axis should be either 1 or -1. '
-            'axis: ' + str(self.axis) + '; ndim: ' + str(ndim) + '.'
+            'axis: ' + str(axis) + '; ndim: ' + str(ndim) + '.'
         )
     rolled_input = K.concatenate([centred_imag, centred_real], axis=axis)
 
@@ -157,7 +157,7 @@ def ComplexBN(input_centred, Vrr, Vii, Vri, beta,
         else:
             raise ValueError(
                 'Incorrect Batchnorm combination of axis and dimensions. axis should be either 1 or -1. '
-                'axis: ' + str(self.axis) + '; ndim: ' + str(ndim) + '.'
+                'axis: ' + str(axis) + '; ndim: ' + str(ndim) + '.'
             )
         rolled_standardized_output = K.concatenate([centred_imag, centred_real], axis=axis)
         if center:
